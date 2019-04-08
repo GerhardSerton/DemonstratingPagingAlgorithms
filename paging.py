@@ -7,18 +7,22 @@ from collections import deque
 
 class OS:
 
-    def __init__(self, length=0):
+    def __init__(self, length=0, rs=-1):
         self.size = length
+        self.refsize = rs
+        if rs == -1:
+            self.referenceString = [8, 5, 6, 2, 5, 3, 5, 4, 2, 3, 5, 3, 2, 6, 2, 5, 6, 8, 5, 6, 2, 3, 4, 2, 1, 3, 7, 5, 4, 3, 1, 5]
+        else:
+            self.referenceString = self.randomPageReferenceString(rs)
         self.pageNo = self.reinitializeList()
-        self.referenceString = self.randomPageReferenceString()
 
     def printList(self):
         for x in range(0, self.size):
             print(self.pageNo[x])
 
-    def FIFO(self, pages):
+    def FIFO(self, pages=[8, 5, 6, 2, 5, 3, 5, 4, 2, 3, 5, 3, 2, 6, 2, 5, 6, 8, 5, 6, 2, 3, 4, 2, 1, 3, 7, 5, 4, 3, 1, 5], size=[-1, -1, -1]):
         self.referenceString = pages
-        self.pageNo = self.reinitializeList()
+        self.pageNo = size
         errors = 0
         lastOut = 0
         for x in self.referenceString:
@@ -30,9 +34,9 @@ class OS:
                     lastOut = 0
         return errors
 
-    def LRU(self, pages):
+    def LRU(self, pages=[8, 5, 6, 2, 5, 3, 5, 4, 2, 3, 5, 3, 2, 6, 2, 5, 6, 8, 5, 6, 2, 3, 4, 2, 1, 3, 7, 5, 4, 3, 1, 5], size=[-1, -1, -1]):
         self.referenceString = pages
-        self.pageNo = self.reinitializeList()
+        self.pageNo = size
         errors = 0
         lasttried = self.initializeFrequencies()
         for x in range (0, len(self.referenceString)):
@@ -56,9 +60,9 @@ class OS:
 
         return errors
 
-    def OPT(self, pages):
+    def OPT(self, pages=[8, 5, 6, 2, 5, 3, 5, 4, 2, 3, 5, 3, 2, 6, 2, 5, 6, 8, 5, 6, 2, 3, 4, 2, 1, 3, 7, 5, 4, 3, 1, 5], size=[-1, -1, -1]):
         queue = deque(pages)
-        self.pageNo = self.reinitializeList()
+        self.pageNo = size
         errors = 0
         differentPages = [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         differentPagesValues = [99999, 99999, 99999, 99999, 99999, 99999, 99999, 99999, 99999, 99999, 99999]
@@ -103,22 +107,35 @@ class OS:
 
         return s
 
+    def test(self):
+        print("FIFO", self.FIFO(), "errors")
+        print("LRU", self.LRU(), "errors")
+        print("OPT", self.OPT(), "errors")
+
     def main(self):
-        p = self.randomPageReferenceString()
-        print("this shit works")
-        print("FIFO", self.FIFO(p), "errors")
-        print("LRU", self.LRU(p), "errors")
-        print ("OPT", self.OPT(p), "errors")
+        p = self.randomPageReferenceString(self.refsize)
+        s = self.reinitializeList()
+
+        print("FIFO", self.FIFO(p, s), "errors")
+        print("LRU", self.LRU(p, s), "errors")
+        print ("OPT", self.OPT(p, s), "errors")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print ("Usage: python paging.py [number of pages]")
+    if len(sys.argv) < 2 or len(sys.argv) > 3:
+        print("Usage: python paging.py [number of pages] [size of reference string]")
+        print("Running default test:")
         p1 = OS(3)
-        p1.main()
-    else:
-        if sys.argv[1] < 1 | sys.argv[1] > 7:
+        p1.test()
+    elif len(sys.argv) == 2:
+        if int(sys.argv[1], 10) < 1 | int(sys.argv[1], 10) > 7:
             print("Too many frames. Try a value between 1 and 7")
         else:
-            p1 = OS(sys.argv[1])
+            p1 = OS(int(sys.argv[1], 10))
+            p1.main()
+    else:
+        if int(sys.argv[1], 10) < 1 | int(sys.argv[1], 10) > 7:
+            print("Too many frames. Try a value between 1 and 7")
+        else:
+            p1 = OS(int(sys.argv[1], 10), int(sys.argv[2], 10))
             p1.main()
